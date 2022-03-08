@@ -6,7 +6,8 @@
   "scripts": {
     "start": "node src/index.js",
     "start-dev": "nodemon src -q",
-    "test": "jest --watchAll  --passWithNoTests",
+    "test": "jest --passWithNoTests",
+    "test-watch": "jest --watchAll",
     "test-coverage": "jest --watchAll --coverage",
     "prepare": "husky install"
   },
