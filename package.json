@@ -33,5 +33,13 @@
     "helmet": "^5.0.2",
     "mongoose": "^6.2.4",
     "morgan": "^1.10.0"
+  },
+  "jest": {
+    "collectCoverageFrom": [
+      "src/**/*.js",
+      "!src/**/*.test.js",
+      "!src/index.js"
+    ],
+    "testEnvironment": "node"
   }
 }
