@@ -2,7 +2,7 @@
   "name": "nicest-shrink-back",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "src/index.js",
   "scripts": {
     "start": "node src/index.js",
     "start-dev": "nodemon src -q",
@@ -26,6 +26,7 @@
   },
   "dependencies": {
     "chalk": "^4.1.2",
+    "cors": "^2.8.5",
     "debug": "^4.3.3",
     "dotenv": "^16.0.0",
     "express": "^4.17.3",
