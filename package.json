@@ -39,7 +39,7 @@
       "src/**/*.js",
       "!src/**/*.test.js",
       "!src/index.js",
-      "!src/server/ServerUp.js",
+      "!src/server/serverUp.js",
       "!src/database/index.js"
     ],
     "testEnvironment": "node"
