@@ -38,7 +38,9 @@
     "collectCoverageFrom": [
       "src/**/*.js",
       "!src/**/*.test.js",
-      "!src/index.js"
+      "!src/index.js",
+      "!src/server/ServerUp.js",
+      "!src/database/index.js"
     ],
     "testEnvironment": "node"
   }
