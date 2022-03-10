@@ -18,6 +18,7 @@ describe("Given a getAllUsers controller", () => {
           password: "12345",
           admin: false,
           sessions: [null],
+          progress: "Not progressing",
         },
       ];
       const next = jest.fn();
