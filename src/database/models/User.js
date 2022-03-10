@@ -24,6 +24,10 @@ const userSchema = new Schema({
   sessions: {
     type: [Schema.Types.ObjectId],
   },
+  progress: {
+    type: String,
+    default: "Not progressing",
+  },
 });
 
 const User = model("User", userSchema, "users");
