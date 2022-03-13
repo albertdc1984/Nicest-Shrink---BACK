@@ -28,7 +28,7 @@ describe("Given a getAllUsers controller", () => {
 
       await getAllUsers(null, res, next);
 
-      expect(res.json).toHaveBeenCalled();
+      expect(next).toHaveBeenCalled();
     });
   });
 });

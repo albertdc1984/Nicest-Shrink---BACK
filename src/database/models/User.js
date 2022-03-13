@@ -1,3 +1,4 @@
+const { default: mongoose } = require("mongoose");
 const { model, Schema } = require("mongoose");
 
 const userSchema = new Schema({
@@ -22,7 +23,8 @@ const userSchema = new Schema({
     default: false,
   },
   sessions: {
-    type: [Schema.Types.ObjectId],
+    type: [mongoose.SchemaTypes.ObjectId],
+    ref: "Session",
   },
   progress: {
     type: String,
