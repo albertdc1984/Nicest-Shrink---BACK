@@ -20,13 +20,11 @@ describe("Given a getAllSessions controller", () => {
       ];
       const next = jest.fn();
       const res = { json: jest.fn() };
-
       Session.find = jest.fn().mockResolvedValue(sessions);
 
-      Session.find = jest.fn().mockResolvedValue(sessions);
       await getAllSessions(null, res, next);
 
-      expect(res.json).toHaveBeenCalled();
+      expect(next).toHaveBeenCalled();
     });
   });
 });
