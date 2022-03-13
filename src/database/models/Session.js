@@ -1,3 +1,4 @@
+const { default: mongoose } = require("mongoose");
 const { model, Schema } = require("mongoose");
 
 const sessionSchema = new Schema({
@@ -10,11 +11,13 @@ const sessionSchema = new Schema({
     required: true,
   },
   patient: {
-    type: Schema.Types.ObjectId,
+    type: mongoose.SchemaTypes.ObjectId,
+    ref: "User",
     required: true,
   },
   doctor: {
-    type: Schema.Types.ObjectId,
+    type: mongoose.SchemaTypes.ObjectId,
+    ref: "User",
     required: true,
   },
 });
