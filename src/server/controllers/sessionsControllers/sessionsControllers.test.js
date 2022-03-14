@@ -1,5 +1,5 @@
 const Session = require("../../../database/models/Session");
-const getAllSessions = require("./sessionsControllers");
+const { getAllSessions } = require("./sessionsControllers");
 
 jest.mock("../../../database/models/Session.js");
 
