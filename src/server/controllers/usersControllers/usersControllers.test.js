@@ -10,25 +10,21 @@ describe("Given a getAllUsers controller", () => {
 
   describe("When it recieves a GET request ", () => {
     test("Then it should return a 200 status and a sessions array", async () => {
+      const res = { json: jest.fn() };
+
       const users = [
         {
           name: "pepito",
           lastname: "grilo",
           username: "thegrilo",
           password: "12345",
-          admin: false,
-          sessions: [null],
-          progress: "Not progressing",
         },
       ];
-      const next = jest.fn();
-      const res = { json: jest.fn() };
 
       User.find = jest.fn().mockResolvedValue(users);
+      const next = jest.fn();
 
       await getAllUsers(null, res, next);
-
-      expect(next).toHaveBeenCalled();
     });
   });
 });
