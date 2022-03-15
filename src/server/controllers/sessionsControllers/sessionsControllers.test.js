@@ -1,6 +1,9 @@
-const { ObjectId } = require("mongodb");
 const Session = require("../../../database/models/Session");
-const { getAllSessions, getOneSession } = require("./sessionsControllers");
+const {
+  getAllSessions,
+  getOneSession,
+  deleteOneSession,
+} = require("./sessionsControllers");
 
 jest.mock("../../../database/models/Session.js");
 
@@ -31,19 +34,19 @@ describe("Given a getAllSessions controller", () => {
   });
 });
 
-describe("Given a getOneSession controller", () => {
+describe("Given a deleteOneSession controller", () => {
   beforeEach(() => {
     jest.resetAllMocks();
   });
 
-  describe("When it recieves a GET request ", () => {
-    test("Then it should return a 200 status and a session object", async () => {
+  describe("When it recieves a DELETE request ", () => {
+    test("Then it should return a 200 status and a Session deleted message", async () => {
       const session = {
         id: "1a",
         when: Date.now(),
         where: "Can Baró",
-        patient: new ObjectId("6229d6f84197f335af2c3ca9"),
-        doctor: new ObjectId("6229d6f84197f335af2c3ca5"),
+        patient: {},
+        doctor: {},
       };
 
       const next = jest.fn();
@@ -51,23 +54,54 @@ describe("Given a getOneSession controller", () => {
       const req = { params: { id: "1a" } };
       const res = { json: jest.fn() };
 
+      Session.findByIdAndRemove = jest.fn().mockResolvedValue({ session });
+
+      await deleteOneSession(req, res, next);
+
+      expect(Session.findByIdAndRemove).toHaveBeenCalled();
+      expect(res.json).toHaveBeenCalled();
+    });
+  });
+
+  describe("When it receives an invalid id to delete", () => {
+    test("Then it should call next with an error", async () => {
+      const req = {
+        params: { id: "1" },
+      };
+
+      const next = jest.fn();
+      const error = new Error("Id not valid");
+
+      Session.findByIdAndRemove = jest.fn().mockRejectedValue(error);
+
+      await deleteOneSession(req, null, next);
+
+      expect(next).toHaveBeenCalledWith(error);
+    });
+  });
+});
+
+describe("Given a getOneSession controller", () => {
+  describe("When it receives a GET request qith a valid ID", () => {
+    test("Then it shoul return a session object", async () => {
+      const req = { params: { id: "1a" } };
+      const res = { json: jest.fn() };
+      const next = jest.fn();
+      const session = {
+        id: "1a",
+        when: Date.now(),
+        where: "Can Baró",
+        patient: {},
+        doctor: {},
+      };
+
       Session.findById = jest.fn().mockReturnThis();
-      Session.populate = jest.fn().mockResolvedValue({ session });
+      Session.populate = jest.fn().mockResolvedValue(session);
 
       await getOneSession(req, res, next);
 
       expect(Session.findById).toHaveBeenCalled();
-    });
-  });
-
-  describe("When it recieves no session in response", () => {
-    test("Then it should throw an error", async () => {
-      const next = jest.fn();
-      const req = { params: { id: "1" } };
-      const res = { id: null };
-      await getOneSession(req, res, next);
-
-      expect(next).toHaveBeenCalled();
+      expect(res.json).toHaveBeenCalled();
     });
   });
 });
