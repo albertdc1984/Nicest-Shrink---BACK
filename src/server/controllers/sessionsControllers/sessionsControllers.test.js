@@ -1,3 +1,4 @@
+const { ObjectId } = require("mongodb");
 const Session = require("../../../database/models/Session");
 const { getAllSessions, getOneSession } = require("./sessionsControllers");
 
@@ -41,8 +42,8 @@ describe("Given a getOneSession controller", () => {
         id: "1a",
         when: Date.now(),
         where: "Can Baró",
-        patient: { name: "pepito" },
-        doctor: { name: "pepitogrilo" },
+        patient: new ObjectId("6229d6f84197f335af2c3ca9"),
+        doctor: new ObjectId("6229d6f84197f335af2c3ca5"),
       };
 
       const next = jest.fn();
@@ -50,13 +51,12 @@ describe("Given a getOneSession controller", () => {
       const req = { params: { id: "1a" } };
       const res = { json: jest.fn() };
 
-      Session.findById = jest.fn().mockResolvedValue({ session });
+      Session.findById = jest.fn().mockReturnThis();
       Session.populate = jest.fn().mockResolvedValue({ session });
 
       await getOneSession(req, res, next);
 
       expect(Session.findById).toHaveBeenCalled();
-      expect(res.json).toHaveBeenCalledWith({ session });
     });
   });
 
