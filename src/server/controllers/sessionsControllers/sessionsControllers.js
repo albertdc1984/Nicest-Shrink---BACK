@@ -15,7 +15,9 @@ const getAllSessions = async (req, res, next) => {
 const getOneSession = async (req, res, next) => {
   const { id } = req.params;
   try {
-    const session = await Session.findById(id);
+    const session = await Session.findById(id)
+      .populate("patient")
+      .populate("doctor");
 
     if (session) {
       res.json(session);
