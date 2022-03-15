@@ -31,5 +31,21 @@ const getOneSession = async (req, res, next) => {
     next(error);
   }
 };
+const deleteOneSession = async (req, res, next) => {
+  const { id } = req.params;
+  try {
+    const session = await Session.findByIdAndRemove(id);
 
-module.exports = { getAllSessions, getOneSession };
+    if (session) {
+      res.json({ message: "Session deleted" });
+    } else {
+      const error = new Error("Session not found");
+      error.code = 404;
+      next(error);
+    }
+  } catch (error) {
+    error.code = 400;
+    next(error);
+  }
+};
+module.exports = { getAllSessions, getOneSession, deleteOneSession };
