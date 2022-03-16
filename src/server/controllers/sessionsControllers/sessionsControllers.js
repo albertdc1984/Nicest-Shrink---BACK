@@ -47,4 +47,26 @@ const deleteOneSession = async (req, res, next) => {
     next(error);
   }
 };
-module.exports = { getAllSessions, getOneSession, deleteOneSession };
+
+const createSession = async (req, res, next) => {
+  try {
+    const newSession = await Session.create(req.body);
+    if (newSession) {
+      res.json(newSession);
+    } else {
+      const error = new Error("Invalid data format");
+      error.code = 400;
+      next(error);
+    }
+  } catch (error) {
+    error.code = 500;
+    error.message = "Couldn't create session";
+    next(error);
+  }
+};
+module.exports = {
+  getAllSessions,
+  getOneSession,
+  deleteOneSession,
+  createSession,
+};

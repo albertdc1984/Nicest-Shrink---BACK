@@ -3,6 +3,7 @@ const {
   getAllSessions,
   getOneSession,
   deleteOneSession,
+  createSession,
 } = require("./sessionsControllers");
 
 jest.mock("../../../database/models/Session.js");
@@ -61,6 +62,20 @@ describe("Given a deleteOneSession controller", () => {
       expect(Session.findByIdAndRemove).toHaveBeenCalled();
       expect(res.json).toHaveBeenCalled();
     });
+    describe("When it receives a request with wrong id", () => {
+      test("Then it should call next method with an error: 'Couldn't find session", async () => {
+        const req = { params: { id: "1afgadfa" } };
+        const next = jest.fn();
+
+        const error = new Error("Session not found");
+
+        Session.findByIdAndRemove = jest.fn().mockRejectedValue(error);
+
+        await deleteOneSession(req, null, next);
+
+        expect(next).toHaveBeenCalledWith(error);
+      });
+    });
   });
 
   describe("When it receives an invalid id to delete", () => {
@@ -83,7 +98,7 @@ describe("Given a deleteOneSession controller", () => {
 
 describe("Given a getOneSession controller", () => {
   describe("When it receives a GET request qith a valid ID", () => {
-    test("Then it shoul return a session object", async () => {
+    test("Then it should return a session object", async () => {
       const req = { params: { id: "1a" } };
       const res = { json: jest.fn() };
       const next = jest.fn();
@@ -102,6 +117,79 @@ describe("Given a getOneSession controller", () => {
 
       expect(Session.findById).toHaveBeenCalled();
       expect(res.json).toHaveBeenCalled();
+    });
+  });
+});
+
+describe("Given a createSession controller", () => {
+  describe("When it receives a request", () => {
+    test("Then it should call method json", async () => {
+      const newSession = {
+        _id: "6229d6f84197f335af2c3ca9",
+        when: "1312-01-12T00:14:44.000Z",
+        where: "Can Baró",
+        patient: "6230586642f13caa9b0c2252",
+        doctor: "6229d8254197f335af2c3cad",
+      };
+      const req = {
+        body: newSession,
+      };
+      const res = {
+        json: jest.fn(),
+      };
+
+      Session.create = jest.fn().mockResolvedValue(req.body);
+
+      await createSession(req, res);
+
+      expect(res.json).toHaveBeenCalled();
+      expect(res.json).toHaveBeenCalledWith(newSession);
+    });
+  });
+
+  describe("When it receives request with invalid format of data", () => {
+    test("Then it should call next with error 'Invalid data format'", async () => {
+      const newSession = {
+        patient: "6230586642f13caa9b0c2252",
+        doctor: "6229d8254197f335af2c3cad",
+      };
+
+      const req = {
+        body: newSession,
+      };
+      const next = jest.fn();
+      const error = new Error("Invalid data format");
+
+      Session.create = jest.fn().mockResolvedValue(null);
+
+      await createSession(req, null, next);
+
+      expect(next).toHaveBeenCalledWith(error);
+    });
+  });
+
+  describe("When it receives a request and database isn't connected", () => {
+    test("Then it should call next method with an error: 'Couldn't create session", async () => {
+      const newSession = {
+        _id: "6229d6f84197f335af2c3ca9",
+        when: "1312-01-12T00:14:44.000Z",
+        where: "Can Baró",
+        patient: "6230586642f13caa9b0c2252",
+        doctor: "6229d8254197f335af2c3cad",
+      };
+
+      const req = {
+        body: newSession,
+      };
+      const next = jest.fn();
+
+      const error = new Error("Couldn't create session");
+
+      Session.create = jest.fn().mockRejectedValue(error);
+
+      await createSession(req, null, next);
+
+      expect(next).toHaveBeenCalledWith(error);
     });
   });
 });
