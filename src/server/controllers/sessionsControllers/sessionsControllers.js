@@ -62,9 +62,31 @@ const createSession = async (req, res, next) => {
     next(error);
   }
 };
+
+const updateOneSession = async (req, res, next) => {
+  const { id } = req.params;
+  const sessionUpdate = req.body;
+  try {
+    const session = await Session.findByIdAndUpdate(id, sessionUpdate);
+
+    if (session) {
+      res.json({ sessionUpdate });
+    } else {
+      const error = new Error("Session not found");
+      error.code = 404;
+      next(error);
+    }
+  } catch (error) {
+    error.code = 500;
+    error.message = "Couldn't update session";
+    next(error);
+  }
+};
+
 module.exports = {
   getAllSessions,
   getOneSession,
   deleteOneSession,
   createSession,
+  updateOneSession,
 };

@@ -4,6 +4,7 @@ const {
   getOneSession,
   deleteOneSession,
   createSession,
+  updateOneSession,
 } = require("../controllers/sessionsControllers/sessionsControllers");
 const getAllUsers = require("../controllers/usersControllers/usersControllers");
 
@@ -12,6 +13,7 @@ router.get("/sessions", getAllSessions);
 router.get("/sessions/:id", getOneSession);
 router.delete("/sessions/:id", deleteOneSession);
 router.post("/sessions/new", createSession);
+router.patch("/sessions/:id", updateOneSession);
 router.get("/users", getAllUsers);
 
 module.exports = router;
