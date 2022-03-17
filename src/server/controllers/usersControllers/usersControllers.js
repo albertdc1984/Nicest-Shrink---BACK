@@ -2,7 +2,7 @@ const User = require("../../../database/models/User");
 
 const getAllUsers = async (req, res, next) => {
   try {
-    const users = await User.find().populate("sessions doctor");
+    const users = await User.find().populate("sessions");
     res.json(users);
   } catch (error) {
     next(error);
