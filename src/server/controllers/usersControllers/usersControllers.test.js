@@ -1,5 +1,5 @@
 const User = require("../../../database/models/User");
-const getAllUsers = require("./usersControllers");
+const { getAllUsers } = require("./usersControllers");
 
 jest.mock("../../../database/models/User.js");
 
