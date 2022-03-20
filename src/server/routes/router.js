@@ -9,6 +9,7 @@ const {
 const {
   getAllUsers,
   createUser,
+  userLogin,
 } = require("../controllers/usersControllers/usersControllers");
 
 const router = express.Router();
@@ -19,5 +20,6 @@ router.post("/sessions/new", createSession);
 router.patch("/sessions/:id", updateOneSession);
 router.get("/users", getAllUsers);
 router.post("/users/new", createUser);
+router.post("/users/login", userLogin);
 
 module.exports = router;
