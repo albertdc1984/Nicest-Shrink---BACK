@@ -12,6 +12,15 @@ const getAllUsers = async (req, res, next) => {
   }
 };
 
+const getOneUser = async (req, res, next) => {
+  try {
+    const user = await User.findById().populate("sessions");
+    res.json(user);
+  } catch (error) {
+    next(error);
+  }
+};
+
 const createUser = async (req, res, next) => {
   const user = req.body;
   const userHashed = {
@@ -25,6 +34,44 @@ const createUser = async (req, res, next) => {
   } catch (error) {
     error.message = "username alredy exists";
     error.status = 409;
+    next(error);
+  }
+};
+
+const updateUser = async (req, res, next) => {
+  const { id } = req.params;
+  const userUpdate = req.body;
+  try {
+    const session = await User.findByIdAndUpdate(id, userUpdate);
+
+    if (session) {
+      res.json({ userUpdate });
+    } else {
+      const error = new Error("User not found");
+      error.code = 404;
+      next(error);
+    }
+  } catch (error) {
+    error.code = 500;
+    error.message = "Couldn't update user";
+    next(error);
+  }
+};
+
+const deleteOneUser = async (req, res, next) => {
+  const { id } = req.params;
+  try {
+    const user = await User.findByIdAndRemove(id);
+
+    if (user) {
+      res.json({ message: "User deleted" });
+    } else {
+      const error = new Error("User not found");
+      error.code = 404;
+      next(error);
+    }
+  } catch (error) {
+    error.code = 400;
     next(error);
   }
 };
@@ -55,4 +102,11 @@ const userLogin = async (req, res, next) => {
   return res.json({ token });
 };
 
-module.exports = { getAllUsers, createUser, userLogin };
+module.exports = {
+  getAllUsers,
+  getOneUser,
+  createUser,
+  updateUser,
+  userLogin,
+  deleteOneUser,
+};
