@@ -17,7 +17,7 @@ const {
 const auth = require("../middlewares/auth");
 
 const router = express.Router();
-router.get("/sessions", auth, getAllSessions);
+router.get("/sessions", getAllSessions);
 router.get("/sessions/:id", auth, getOneSession);
 router.delete("/sessions/:id", auth, deleteOneSession);
 router.post("/sessions/new", auth, createSession);
