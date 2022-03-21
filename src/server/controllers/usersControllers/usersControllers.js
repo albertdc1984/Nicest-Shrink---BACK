@@ -13,8 +13,9 @@ const getAllUsers = async (req, res, next) => {
 };
 
 const getOneUser = async (req, res, next) => {
+  const { id } = req.params;
   try {
-    const user = await User.findById().populate("sessions");
+    const user = await User.findById(id).populate("sessions");
     res.json(user);
   } catch (error) {
     next(error);
