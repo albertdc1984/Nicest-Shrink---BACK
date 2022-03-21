@@ -2,10 +2,6 @@ const { default: mongoose } = require("mongoose");
 const { model, Schema } = require("mongoose");
 
 const userSchema = new Schema({
-  _id: {
-    type: String,
-  },
-
   name: {
     type: String,
     required: true,

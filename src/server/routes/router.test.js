@@ -1,8 +1,10 @@
 require("dotenv").config();
 const { MongoMemoryServer } = require("mongodb-memory-server");
+
 const mongoose = require("mongoose");
 const request = require("supertest");
 const databaseConnect = require("../../database/index");
+
 const app = require("..");
 const Session = require("../../database/models/Session");
 
@@ -11,7 +13,6 @@ let mongoServer;
 beforeAll(async () => {
   mongoServer = await MongoMemoryServer.create();
   const connectionString = mongoServer.getUri();
-
   await databaseConnect(connectionString);
 
   await Session.create({
@@ -34,7 +35,13 @@ afterAll(() => {
 describe("Given an endpoint /sessions", () => {
   describe("When it receives a GET request", () => {
     test("Then it should respond with status 200 and a list of sessions", async () => {
-      const { body } = await request(app).get("/sessions/").expect(200);
+      const { body } = await request(app)
+        .get("/sessions/")
+        .set(
+          "Authorization",
+          "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiMTIzNDU2IiwiaWQiOiI2MjM4YTYwYjhhZDM1OTdmODk2NTU0YTgiLCJpYXQiOjE2NDc4ODM2ODMsImV4cCI6MTY0ODIyOTI4M30.MX8-VT96Ig9Y1Xl_5zcGZsu49tXPs-GBTsgsQd0oYRQ"
+        )
+        .expect(200);
 
       expect(body).toBeDefined();
     });
