@@ -100,6 +100,7 @@ const userLogin = async (req, res, next) => {
   const token = jwt.sign(userdata, process.env.JWT_SECRET, {
     expiresIn: "4d",
   });
+
   return res.json({ token });
 };
 
