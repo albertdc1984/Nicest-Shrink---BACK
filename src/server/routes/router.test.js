@@ -7,24 +7,41 @@ const databaseConnect = require("../../database/index");
 
 const app = require("..");
 const Session = require("../../database/models/Session");
+const User = require("../../database/models/User");
 
 let mongoServer;
+let userToken;
 
 beforeAll(async () => {
   mongoServer = await MongoMemoryServer.create();
   const connectionString = mongoServer.getUri();
   await databaseConnect(connectionString);
+});
 
+beforeEach(async () => {
   await Session.create({
     when: "1312-01-12",
     where: "Can Baró",
     patient: "6229d7be4197f335af2c3cac",
     doctor: "6229d8254197f335af2c3cad",
   });
+  await User.create({
+    name: "123456",
+    lastname: "123456",
+    username: "123456",
+    password: "$2b$10$2rMqPvHpSA7OyeS9LdvejueLOTRFaAXoEvn73h70pQffd7UCVXbcu",
+  });
+
+  const { body } = await request(app)
+    .post("/users/login")
+    .send({ username: "123456", password: "123456" });
+
+  userToken = body.token;
 });
 
-afterAll(async () => {
+afterEach(async () => {
   await Session.deleteMany({});
+  await User.deleteMany({});
 });
 
 afterAll(() => {
@@ -37,10 +54,7 @@ describe("Given an endpoint /sessions", () => {
     test("Then it should respond with status 200 and a list of sessions", async () => {
       const { body } = await request(app)
         .get("/sessions/")
-        .set(
-          "Authorization",
-          "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiMTIzNDU2IiwiaWQiOiI2MjM4YTYwYjhhZDM1OTdmODk2NTU0YTgiLCJpYXQiOjE2NDc4ODM2ODMsImV4cCI6MTY0ODIyOTI4M30.MX8-VT96Ig9Y1Xl_5zcGZsu49tXPs-GBTsgsQd0oYRQ"
-        )
+        .set("Authorization", `Bearer ${userToken}`)
         .expect(200);
 
       expect(body).toBeDefined();
