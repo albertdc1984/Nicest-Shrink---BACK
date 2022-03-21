@@ -35,7 +35,7 @@ afterAll(() => {
 describe("Given an endpoint /sessions", () => {
   describe("When it receives a GET request", () => {
     test("Then it should respond with status 200 and a list of sessions", async () => {
-      const response = await request(app)
+      const { body } = await request(app)
         .get("/sessions/")
         .set(
           "Authorization",
@@ -43,7 +43,7 @@ describe("Given an endpoint /sessions", () => {
         )
         .expect(200);
 
-      expect(response).toBeDefined();
+      expect(body).toBeDefined();
     });
   });
 });
