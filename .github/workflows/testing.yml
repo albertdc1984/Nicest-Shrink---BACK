@@ -2,7 +2,7 @@ name: Testing on push
 
 on: push
 env:
-  JWT_SECRET: ${{secrets.JWT_SECRET}}
+  JWT_SECRET: "d2b05936c377e1377627e19aee1c56fb6b5e6da84feb3def420cc301a7656b5c"
 
 jobs:
   test:
