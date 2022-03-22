@@ -1,7 +1,14 @@
 require("dotenv").config();
 const jwt = require("jsonwebtoken");
 const User = require("../../../database/models/User");
-const { getAllUsers, userLogin } = require("./usersControllers");
+const {
+  getAllUsers,
+  userLogin,
+  getOneUser,
+  createUser,
+  updateUser,
+  deleteOneUser,
+} = require("./usersControllers");
 
 jest.mock("../../../database/models/User.js");
 
@@ -105,6 +112,109 @@ describe("Given an loginUser controller", () => {
 
       expect(User.findOne).toHaveBeenCalled();
       expect(next).toHaveBeenCalledWith(error);
+    });
+  });
+});
+
+describe("Given a getOneUser controller", () => {
+  beforeEach(() => {
+    jest.resetAllMocks();
+  });
+
+  describe("When it recieves a GET request ", () => {
+    test("Then it should return a 200 status and a session", async () => {
+      const res = { json: jest.fn() };
+      const req = { params: { id: "1" } };
+
+      const user = {
+        id: "1",
+        name: "pepito",
+        lastname: "grilo",
+        username: "thegrilo",
+        password: "12345",
+      };
+
+      User.findById = jest.fn().mockResolvedValue(user);
+      const next = jest.fn();
+
+      await getOneUser(req, res, next);
+      expect(User.findById).toHaveBeenCalled();
+      expect(next).toHaveBeenCalled();
+    });
+  });
+});
+describe("Given a createUser controller", () => {
+  beforeEach(() => {
+    jest.resetAllMocks();
+  });
+
+  describe("When it recieves a POST request ", () => {
+    test("Then it should return a 200 status", async () => {
+      const user = {
+        id: "1",
+        name: "pepito",
+        lastname: "grilo",
+        username: "thegrilo",
+        password: "12345",
+      };
+
+      const req = {
+        body: user,
+      };
+      const res = {
+        json: jest.fn(),
+      };
+      const next = jest.fn();
+
+      User.create = jest.fn().mockResolvedValue(req.body);
+      await createUser(req, res, next);
+
+      expect(User.create).toHaveBeenCalled();
+      expect(next).toHaveBeenCalled();
+    });
+  });
+});
+
+describe("Given an deleteUser controller", () => {
+  beforeEach(() => {
+    jest.resetAllMocks();
+  });
+
+  describe("When it recieves a DELETE request ", () => {
+    test("Then it should return a 200 status", async () => {
+      const req = { params: { id: "1" } };
+      const res = {
+        json: jest.fn(),
+      };
+      const next = jest.fn();
+
+      User.findByIdAndRemove = jest.fn();
+      await deleteOneUser(req, res, next);
+
+      expect(User.findByIdAndRemove).toHaveBeenCalled();
+      expect(next).toHaveBeenCalled();
+    });
+  });
+});
+
+describe("Given an updateUser controller", () => {
+  beforeEach(() => {
+    jest.resetAllMocks();
+  });
+
+  describe("When it recieves a POST request ", () => {
+    test("Then it should return a 200 status", async () => {
+      const req = { params: { id: "1" } };
+      const res = {
+        json: jest.fn(),
+      };
+      const next = jest.fn();
+
+      User.findByIdAndUpdate = jest.fn().mockResolvedValue(req.body);
+      await updateUser(req, res, next);
+
+      expect(User.findByIdAndUpdate).toHaveBeenCalled();
+      expect(next).toHaveBeenCalled();
     });
   });
 });

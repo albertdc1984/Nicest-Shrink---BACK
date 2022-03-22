@@ -4,6 +4,7 @@ const {
   getOneSession,
   deleteOneSession,
   createSession,
+  updateOneSession,
 } = require("./sessionsControllers");
 
 jest.mock("../../../database/models/Session.js");
@@ -190,6 +191,50 @@ describe("Given a createSession controller", () => {
       await createSession(req, null, next);
 
       expect(next).toHaveBeenCalledWith(error);
+    });
+  });
+});
+
+describe("Given an updateSession controller", () => {
+  beforeEach(() => {
+    jest.resetAllMocks();
+  });
+
+  describe("When it recieves a POST request ", () => {
+    test("Then it should return a 200 status", async () => {
+      const req = { params: { id: "1" } };
+      const res = {
+        json: jest.fn(),
+      };
+      const next = jest.fn();
+
+      Session.findByIdAndUpdate = jest.fn().mockResolvedValue(req.body);
+      await updateOneSession(req, res, next);
+
+      expect(Session.findByIdAndUpdate).toHaveBeenCalled();
+      expect(next).toHaveBeenCalled();
+    });
+  });
+});
+
+describe("Given an deleteSession controller", () => {
+  beforeEach(() => {
+    jest.resetAllMocks();
+  });
+
+  describe("When it recieves a DELETE request ", () => {
+    test("Then it should return a 200 status", async () => {
+      const req = { params: { id: "1" } };
+      const res = {
+        json: jest.fn(),
+      };
+      const next = jest.fn();
+
+      Session.findByIdAndRemove = jest.fn();
+      await deleteOneSession(req, res, next);
+
+      expect(Session.findByIdAndRemove).toHaveBeenCalled();
+      expect(next).toHaveBeenCalled();
     });
   });
 });
