@@ -7,6 +7,7 @@ const {
   getOneUser,
   createUser,
   updateUser,
+  deleteOneUser,
 } = require("./usersControllers");
 
 jest.mock("../../../database/models/User.js");
@@ -169,6 +170,28 @@ describe("Given a createUser controller", () => {
       await createUser(req, res, next);
 
       expect(User.create).toHaveBeenCalled();
+      expect(next).toHaveBeenCalled();
+    });
+  });
+});
+
+describe("Given an deleteUser controller", () => {
+  beforeEach(() => {
+    jest.resetAllMocks();
+  });
+
+  describe("When it recieves a DELETE request ", () => {
+    test("Then it should return a 200 status", async () => {
+      const req = { params: { id: "1" } };
+      const res = {
+        json: jest.fn(),
+      };
+      const next = jest.fn();
+
+      User.findByIdAndRemove = jest.fn();
+      await deleteOneUser(req, res, next);
+
+      expect(User.findByIdAndRemove).toHaveBeenCalled();
       expect(next).toHaveBeenCalled();
     });
   });
