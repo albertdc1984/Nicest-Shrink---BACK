@@ -24,6 +24,7 @@ const getOneSession = async (req, res, next) => {
       next(error);
     }
   } catch (error) {
+    error.message = "Something went wrong";
     error.code = 400;
     next(error);
   }

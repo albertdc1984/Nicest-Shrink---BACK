@@ -24,6 +24,7 @@ describe("Given a getAllSessions controller", () => {
           doctor: { name: "pepitogrilo" },
         },
       ];
+
       const next = jest.fn();
       const res = { json: jest.fn() };
       Session.find = jest.fn().mockReturnThis();
@@ -32,6 +33,19 @@ describe("Given a getAllSessions controller", () => {
       await getAllSessions(null, res, next);
 
       expect(Session.find).toHaveBeenCalled();
+    });
+
+    test("Then it should return a 200 status and a sessions array", async () => {
+      const next = jest.fn();
+      const res = { json: jest.fn() };
+      const error = new Error();
+
+      Session.find = jest.fn().mockReturnThis();
+      Session.populate = jest.fn().mockRejectedValue(error);
+
+      await getAllSessions(null, res, next);
+
+      expect(next).toHaveBeenCalledWith(error);
     });
   });
 });
@@ -56,7 +70,8 @@ describe("Given a deleteOneSession controller", () => {
       const req = { params: { id: "1a" } };
       const res = { json: jest.fn() };
 
-      Session.findByIdAndRemove = jest.fn().mockResolvedValue({ session });
+      Session.findByIdAndRemove = jest.fn().mockReturnThis();
+      Session.populate = jest.fn().mockRejectedValue({ session });
 
       await deleteOneSession(req, res, next);
 
@@ -70,7 +85,8 @@ describe("Given a deleteOneSession controller", () => {
 
         const error = new Error("Session not found");
 
-        Session.findByIdAndRemove = jest.fn().mockRejectedValue(error);
+        Session.findOneAndRemove = jest.fn().mockReturnThis();
+        Session.populate = jest.fn().mockRejectedValue(error);
 
         await deleteOneSession(req, null, next);
 
@@ -81,18 +97,21 @@ describe("Given a deleteOneSession controller", () => {
 
   describe("When it receives an invalid id to delete", () => {
     test("Then it should call next with an error", async () => {
+      const expectedErrorMessage = "Session not found";
+      Session.findOneAndRemove = jest.fn().mockReturnThis();
+      Session.populate = jest.fn().mockRejectedValue(new Error());
+      const next = jest.fn();
+      const res = null;
       const req = {
-        params: { id: "1" },
+        params: {
+          id: "asdasd3232sasdasd",
+        },
       };
 
-      const next = jest.fn();
-      const error = new Error("Id not valid");
+      await deleteOneSession(req, res, next);
+      const errorMessage = next.mock.calls[0][0].message;
 
-      Session.findByIdAndRemove = jest.fn().mockRejectedValue(error);
-
-      await deleteOneSession(req, null, next);
-
-      expect(next).toHaveBeenCalledWith(error);
+      expect(errorMessage).toBe(expectedErrorMessage);
     });
   });
 });
@@ -118,6 +137,41 @@ describe("Given a getOneSession controller", () => {
 
       expect(Session.findById).toHaveBeenCalled();
       expect(res.json).toHaveBeenCalled();
+    });
+
+    test("Then it should return a session object", async () => {
+      const req = {};
+      req.params = {
+        id: "1a",
+      };
+
+      const next = jest.fn();
+
+      const error = new Error("User not found");
+
+      Session.findOne = jest.fn().mockReturnThis();
+      Session.populate = jest.fn().mockRejectedValue(error);
+
+      await getOneSession(req, null, next);
+
+      expect(Session.findById).toHaveBeenCalled();
+      expect(next).toHaveBeenCalledWith(error);
+    });
+
+    test("Then it should return a session object", async () => {
+      const req = { params: { id: "1asdfsdfsdf" } };
+
+      const next = jest.fn();
+
+      const error = new Error("Something went wrong");
+
+      Session.findById = jest.fn().mockReturnThis();
+      Session.populate = jest.fn().mockRejectedValue(error);
+
+      await getOneSession(req, null, next);
+
+      expect(Session.findById).toHaveBeenCalled();
+      expect(next).toHaveBeenCalledWith(error);
     });
   });
 });
@@ -208,11 +262,36 @@ describe("Given an updateSession controller", () => {
       };
       const next = jest.fn();
 
-      Session.findByIdAndUpdate = jest.fn().mockResolvedValue(req.body);
+      Session.findByIdAndUpdate = jest.fn().mockReturnThis();
+      Session.populate = jest.fn().mockResolvedValue(req.body);
       await updateOneSession(req, res, next);
 
       expect(Session.findByIdAndUpdate).toHaveBeenCalled();
-      expect(next).toHaveBeenCalled();
+      expect(res.json).toHaveBeenCalled();
+    });
+
+    test("Then it should return an error status", async () => {
+      const req = { params: { id: "1" } };
+      const res = {};
+      const next = jest.fn();
+      const error = new Error("Couldn't update session");
+      Session.findByIdAndUpdate = jest.fn().mockReturnThis();
+      Session.populate = jest.fn().mockRejectedValue(error);
+      await updateOneSession(req, res, next);
+
+      expect(Session.findByIdAndUpdate).toHaveBeenCalled();
+      expect(next).toHaveBeenCalledWith(error);
+    });
+    test("Then it should return an error status", async () => {
+      const req = { params: { id: "1" } };
+      const next = jest.fn();
+      const error = new Error("Session not found");
+      Session.findOne = jest.fn().mockReturnThis();
+      Session.populate = jest.fn().mockRejectedValue(error);
+      await updateOneSession(req, null, next);
+
+      expect(Session.findByIdAndUpdate).toHaveBeenCalled();
+      expect(next).toHaveBeenCalledWith(error);
     });
   });
 });
@@ -229,12 +308,13 @@ describe("Given an deleteSession controller", () => {
         json: jest.fn(),
       };
       const next = jest.fn();
+      const error = new Error();
 
-      Session.findByIdAndRemove = jest.fn();
+      Session.findByIdAndRemove = jest.fn().mockRejectedValue(error);
       await deleteOneSession(req, res, next);
 
       expect(Session.findByIdAndRemove).toHaveBeenCalled();
-      expect(next).toHaveBeenCalled();
+      expect(next).toHaveBeenCalledWith(error);
     });
   });
 });
