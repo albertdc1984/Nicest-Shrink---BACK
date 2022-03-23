@@ -1,5 +1,6 @@
 require("dotenv").config();
 const jwt = require("jsonwebtoken");
+const mongoose = require("mongoose");
 const User = require("../../../database/models/User");
 const {
   getAllUsers,
@@ -9,6 +10,8 @@ const {
   updateUser,
   deleteOneUser,
 } = require("./usersControllers");
+
+mongoose.populate = jest.fn().mockReturnValueOnce("");
 
 jest.mock("../../../database/models/User.js");
 
@@ -30,10 +33,27 @@ describe("Given a getAllUsers controller", () => {
         },
       ];
 
-      User.find = jest.fn().mockResolvedValue(users);
+      User.find = jest.fn().mockReturnThis(users);
+      User.populate = jest.fn().mockResolvedValue(users);
       const next = jest.fn();
 
       await getAllUsers(null, res, next);
+      expect(res.json).toHaveBeenCalled();
+    });
+  });
+
+  describe("When it recieves a GET request ", () => {
+    test("Then it should return a 200 status and an error", async () => {
+      const res = { json: jest.fn() };
+
+      const error = new Error();
+      User.find = jest.fn().mockReturnThis();
+      User.populate = jest.fn().mockRejectedValue(error);
+      const next = jest.fn();
+
+      await getAllUsers(null, res, next);
+
+      expect(next).toHaveBeenCalledWith(error);
     });
   });
 });
@@ -66,7 +86,7 @@ describe("Given an loginUser controller", () => {
     });
   });
 
-  describe("When it receives a request with username Rosa0 and a incorrect password", () => {
+  describe("When it receives a request with username 123456 and a incorrect password", () => {
     test("Then it should invoke next function with an error", async () => {
       const req = {
         body: { username: "123456", password: "nananana" },
@@ -77,7 +97,7 @@ describe("Given an loginUser controller", () => {
 
       const user = {
         name: "1234566666666666666",
-        username: "Laura0",
+        username: "Pepe",
         password:
           "$2b$10$dMTNK.KOdxL0WAa5v57J4eaRc/1HUGSmr5KSPC4PT17z.HqIOtoHK",
       };
@@ -127,19 +147,35 @@ describe("Given a getOneUser controller", () => {
       const req = { params: { id: "1" } };
 
       const user = {
-        id: "1",
-        name: "pepito",
-        lastname: "grilo",
-        username: "thegrilo",
+        _id: "6229d8254197f335af2c3cad",
+        name: "Dr Albert",
+        lastname: "DC",
+        username: "albertdc1984",
         password: "12345",
+        admin: true,
+        sessions: Array,
       };
 
-      User.findById = jest.fn().mockResolvedValue(user);
+      User.findById = jest.fn().mockReturnThis();
+      User.populate = jest.fn().mockResolvedValue(user);
       const next = jest.fn();
 
       await getOneUser(req, res, next);
       expect(User.findById).toHaveBeenCalled();
-      expect(next).toHaveBeenCalled();
+    });
+    test("Then it should return an error when ids don't match", async () => {
+      const res = { json: jest.fn() };
+      const req = {};
+      req.params = { id: "555555555" };
+
+      const error = new Error();
+      User.findById = jest.fn().mockReturnThis();
+      User.populate = jest.fn().mockRejectedValue(error);
+      const next = jest.fn();
+
+      await getOneUser(req, res, next);
+      expect(User.findById).toHaveBeenCalled();
+      expect(next).toHaveBeenCalledWith(error);
     });
   });
 });
@@ -188,11 +224,38 @@ describe("Given an deleteUser controller", () => {
       };
       const next = jest.fn();
 
-      User.findByIdAndRemove = jest.fn();
+      User.findByIdAndRemove = jest.fn().mockReturnThis();
       await deleteOneUser(req, res, next);
 
       expect(User.findByIdAndRemove).toHaveBeenCalled();
-      expect(next).toHaveBeenCalled();
+      expect(res.json).toHaveBeenCalled();
+    });
+
+    test("Then it should return a 200 status", async () => {
+      const req = { params: { id: "1" } };
+      const res = {
+        json: jest.fn(),
+      };
+      const next = jest.fn();
+      const error = new Error();
+
+      User.findByIdAndRemove = jest.fn().mockRejectedValue(error);
+      await deleteOneUser(req, res, next);
+
+      expect(User.findByIdAndRemove).toHaveBeenCalled();
+      expect(next).toHaveBeenCalledWith(error);
+    });
+    test("Then it should call next method with an error: 'Couldn't find session", async () => {
+      const req = { params: { id: "1afgadfa" } };
+      const next = jest.fn();
+
+      const error = new Error("User not found");
+
+      User.findOneAndRemove = jest.fn().mockRejectedValue(error);
+
+      await deleteOneUser(req, null, next);
+
+      expect(next).toHaveBeenCalledWith(error);
     });
   });
 });
@@ -205,16 +268,55 @@ describe("Given an updateUser controller", () => {
   describe("When it recieves a POST request ", () => {
     test("Then it should return a 200 status", async () => {
       const req = { params: { id: "1" } };
+      req.body = {
+        id: "1",
+        name: "pepito",
+        lastname: "grilo",
+        username: "thegrilo",
+        password: "12345",
+      };
       const res = {
         json: jest.fn(),
       };
       const next = jest.fn();
 
       User.findByIdAndUpdate = jest.fn().mockResolvedValue(req.body);
+      User.populate = jest.fn().mockResolvedValue(req.body);
       await updateUser(req, res, next);
 
       expect(User.findByIdAndUpdate).toHaveBeenCalled();
-      expect(next).toHaveBeenCalled();
+      expect(res.json).toHaveBeenCalled();
+    });
+  });
+
+  describe("When it recieves a POST request ", () => {
+    test("Then it should return an error", async () => {
+      const req = {};
+      req.params = { id: "12222312312312312" };
+      const res = {};
+      const next = jest.fn();
+      const error = new Error("Couldn't update user");
+      User.findByIdAndUpdate = jest.fn().mockReturnThis();
+      User.populate = jest.fn().mockRejectedValue(error);
+
+      await updateUser(req, res, next);
+
+      expect(User.findByIdAndUpdate).toHaveBeenCalled();
+      expect(next).toHaveBeenCalledWith(error);
+    });
+
+    test("Then it should return an error", async () => {
+      const req = {};
+      req.params = { id: "12222312312312312" };
+      const next = jest.fn();
+      const error = new Error("User not found");
+      User.findOneAndUpdate = jest.fn().mockReturnThis();
+      User.populate = jest.fn().mockRejectedValue(error);
+
+      await updateUser(req, null, next);
+
+      expect(User.findByIdAndUpdate).toHaveBeenCalled();
+      expect(next).toHaveBeenCalledWith(error);
     });
   });
 });
